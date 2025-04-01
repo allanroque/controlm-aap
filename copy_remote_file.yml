@@ -1,23 +1,18 @@
 ---
-- name: Copiar arquivo de um servidor remoto para outro
-  hosts: all  # alvo é o destino
+- name: Copiar arquivo diretamente de um servidor remoto para outro
+  hosts: "{{ host_node }}"
   gather_facts: false
+  become: false
+
   vars:
-    src_host: ""
-    src_path: ""
-    dest_path: ""
-    temp_file: "/tmp/temp_transfer_file"
+    src_host: ""        # Nome do host de origem (definido no inventário)
+    src_path: ""        # Caminho completo no host de origem
+    dest_path: ""       # Caminho completo no host de destino
 
   tasks:
-    - name: Buscar arquivo do host de origem
-      ansible.builtin.fetch:
+    - name: Copiar arquivo do host de origem diretamente para este host
+      ansible.posix.synchronize:
         src: "{{ src_path }}"
-        dest: "{{ temp_file }}"
-        flat: yes
-      delegate_to: "{{ src_host }}"
-      run_once: true
-
-    - name: Copiar arquivo do controlador para o host destino
-      ansible.builtin.copy:
-        src: "{{ temp_file }}"
         dest: "{{ dest_path }}"
+        mode: pull
+      delegate_to: "{{ src_host }}"

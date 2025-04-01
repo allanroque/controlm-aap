@@ -6,15 +6,15 @@
     script_path: ""
 
   tasks:
-    - name: Verificar se o script existe
-      stat:
-        path: "{{ script_path }}"
-      register: script_stat
+#    - name: Verificar se o script existe
+#      stat:
+#        path: "{{ script_path }}"
+#      register: script_stat
 
-    - name: Falhar se o script não existir
-      fail:
-        msg: "Script não encontrado em {{ script_path }}"
-      when: not script_stat.stat.exists
+#    - name: Falhar se o script não existir
+#      fail:
+#        msg: "Script não encontrado em {{ script_path }}"
+#      when: not script_stat.stat.exists
 
     - name: Executar o script
       shell: "{{ comando_final }}"
