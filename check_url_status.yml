@@ -1,0 +1,19 @@
+---
+- name: Verificar status de URL
+  hosts: localhost
+  gather_facts: false
+  vars:
+    url: ""
+    expected_status: 200
+  tasks:
+    - name: Checar URL
+      uri:
+        url: "{{ url }}"
+        method: GET
+        status_code: "{{ expected_status }}"
+        return_content: yes
+      register: resposta
+
+    - name: Exibir conteúdo da resposta (opcional)
+      debug:
+        var: resposta.content

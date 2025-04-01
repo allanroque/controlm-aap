@@ -1,0 +1,22 @@
+---
+- name: Transferência SFTP (put/get)
+  hosts: localhost
+  gather_facts: false
+  vars:
+    sftp_host: ""
+    sftp_port: 22
+    sftp_user: ""
+    sftp_pass: ""
+    sftp_mode: "put"  # ou "get"
+    sftp_src: ""
+    sftp_dest: ""
+  tasks:
+    - name: Enviar ou receber arquivo via SFTP
+      community.general.sftp:
+        host: "{{ sftp_host }}"
+        port: "{{ sftp_port }}"
+        username: "{{ sftp_user }}"
+        password: "{{ sftp_pass }}"
+        mode: "{{ sftp_mode }}"
+        src: "{{ sftp_src }}"
+        dest: "{{ sftp_dest }}"

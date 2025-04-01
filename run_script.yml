@@ -1,0 +1,26 @@
+---
+- name: Executar script com argumentos
+  hosts: all
+  gather_facts: false
+  vars:
+    script_path: ""
+    script_args: ""
+  tasks:
+    - name: Verificar se o script existe
+      stat:
+        path: "{{ script_path }}"
+      register: script_stat
+
+    - name: Falhar se o script não existir
+      fail:
+        msg: "Script não encontrado em {{ script_path }}"
+      when: not script_stat.stat.exists
+
+    - name: Executar o script
+      shell: "{{ script_path }} {{ script_args }}"
+      register: resultado_script
+      ignore_errors: false
+
+    - name: Exibir saída do script
+      debug:
+        var: resultado_script.stdout

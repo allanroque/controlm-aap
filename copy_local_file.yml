@@ -1,0 +1,23 @@
+---
+- name: Copiar arquivo localmente de A para B
+  hosts: all
+  gather_facts: false
+  vars:
+    src_path: ""
+    dest_path: ""
+  tasks:
+    - name: Validar se arquivo de origem existe
+      stat:
+        path: "{{ src_path }}"
+      register: arquivo_origem
+
+    - name: Falhar se arquivo não existir
+      fail:
+        msg: "Arquivo de origem não encontrado: {{ src_path }}"
+      when: not arquivo_origem.stat.exists
+
+    - name: Copiar arquivo
+      copy:
+        src: "{{ src_path }}"
+        dest: "{{ dest_path }}"
+        remote_src: yes
