@@ -1,10 +1,10 @@
 ---
-- name: Executar script com argumentos
-  hosts: all
+- name: Executar script com argumentos opcionais
+  hosts: "{{ host_node }}"
   gather_facts: false
   vars:
     script_path: ""
-    script_args: ""
+
   tasks:
     - name: Verificar se o script existe
       stat:
@@ -17,7 +17,7 @@
       when: not script_stat.stat.exists
 
     - name: Executar o script
-      shell: "{{ script_path }} {{ script_args }}"
+      shell: "{{ comando_final }}"
       register: resultado_script
       ignore_errors: false
 

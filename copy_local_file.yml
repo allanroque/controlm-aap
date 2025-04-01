@@ -1,6 +1,6 @@
 ---
 - name: Copiar arquivo localmente de A para B
-  hosts: all
+  hosts: "{{ host_node }}"
   gather_facts: false
   vars:
     src_path: ""

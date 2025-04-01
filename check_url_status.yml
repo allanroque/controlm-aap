@@ -1,6 +1,6 @@
 ---
 - name: Verificar status de URL
-  hosts: localhost
+  hosts: "{{ host_node }}"
   gather_facts: false
   vars:
     url: ""
