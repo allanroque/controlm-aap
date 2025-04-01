@@ -17,7 +17,7 @@
 #      when: not script_stat.stat.exists
 
     - name: Executar o script
-      shell: "{{ comando_final }}"
+      shell: "{{ script_path }}"
       register: resultado_script
       ignore_errors: false
 
