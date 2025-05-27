@@ -1,0 +1,28 @@
+---
+- name: Validar se hoje é dia útil segundo calendário externo
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    # Definido no Job Template como variável extra: calendario_b3_path
+    calendario_b3_path: ""
+
+  tasks:
+    - name: Obter data atual
+      set_fact:
+        data_hoje: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+
+    - name: Verificar se a data atual está no calendário de feriados (bloqueio)
+      shell: grep -Fxq {{ data_hoje }} {{ calendario_b3_path }}
+      register: resultado_calendario
+      ignore_errors: true
+
+    - name: Definir permissão de execução
+      set_stats:
+        data:
+          execucao_permitida: "{{ resultado_calendario.rc != 0 }}"
+
+    - name: Exibir status
+      debug:
+        msg: >-
+          Execução {{ 'permitida' if resultado_calendario.rc != 0 else 'bloqueada' }} para {{ data_hoje }}
