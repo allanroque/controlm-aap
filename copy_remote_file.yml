@@ -1,5 +1,5 @@
 ---
-- name: Transferir arquivo entre servidores sem rsync, com fallback de nome
+- name: Transferir arquivo de um host remoto para outro
   hosts: localhost
   gather_facts: false
 
@@ -8,28 +8,26 @@
     dest_host: "{{ host_destino }}"
     caminho_do_arquivo: "{{ caminho_do_arquivo }}"
     caminho_destino: "{{ caminho_destino }}"
+    nome_arquivo: "{{ caminho_do_arquivo | basename }}"
+    arquivo_local: "/tmp/{{ nome_arquivo }}"
 
   tasks:
     - name: Buscar arquivo do host de origem
       ansible.builtin.fetch:
-        src: "{{ caminho_csv }}"
+        src: "{{ caminho_do_arquivo }}"
         dest: "{{ arquivo_local }}"
         flat: true
       delegate_to: "{{ src_host }}"
       run_once: true
 
-    - name: Copiar arquivo para o host de destino
+    - name: Enviar arquivo para o host de destino
       ansible.builtin.copy:
-        src: "{{ caminho_do_arquivo }}"
-        dest: "{{ caminho_destino }}"
+        src: "{{ arquivo_local }}"
+        dest: "{{ caminho_destino }}/{{ nome_arquivo }}"
       delegate_to: "{{ dest_host }}"
       run_once: true
 
-    - name: Publicar variável com o destino final
+    - name: Publicar caminho final do arquivo
       set_stats:
         data:
-          arquivo_enviado_para: "{{ dest_host }}:{{ caminho_destino }}"
-
-    - name: Confirmar envio
-      debug:
-        msg: "Arquivo transferido para {{ arquivo_enviado_para }}"
+          arquivo_enviado_para: "{{ dest_host }}:{{ caminho_destino }}/{{ nome_arquivo }}"
