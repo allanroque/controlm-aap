@@ -2,25 +2,42 @@
 - name: Executar script com argumentos opcionais
   hosts: "{{ host_node }}"
   gather_facts: false
+
   vars:
-    script_path: ""
+    script_path: "/home/ansible/scripts/processa_financeiro.py"
+    odate: "{{ odate | default(lookup('pipe', 'date +%Y-%m-%d')) }}"
+    caldate: "{{ lookup('pipe', 'date -d \"{{ odate }} +1 day\" +%Y-%m-%d') }}"
+    nome_arquivo: "relatorio_financeiro_{{ caldate }}.csv"
+    caminho_arquivo: "/home/ansible/{{ nome_arquivo }}"
 
   tasks:
-#    - name: Verificar se o script existe
-#      stat:
-#        path: "{{ script_path }}"
-#      register: script_stat
+    - name: Exibir ODATE e CALCDATE
+      debug:
+        msg: "ODATE: {{ odate }} | CALCDATE: {{ caldate }}"
 
-#    - name: Falhar se o script não existir
-#      fail:
-#        msg: "Script não encontrado em {{ script_path }}"
-#      when: not script_stat.stat.exists
+    - name: Verificar se o script Python existe
+      stat:
+        path: "{{ script_path }}"
+      register: script_status
 
-    - name: Executar o script
-      shell: "{{ script_path }}"
-      register: resultado_script
+    - name: Falhar se o script não existir
+      fail:
+        msg: "Script {{ script_path }} não encontrado"
+      when: not script_status.stat.exists
+
+    - name: Executar script Python com CALCDATE
+      shell: "{{ script_path }} {{ caldate }}"
+      register: resultado_execucao
+      args:
+        executable: /usr/bin/python3
       ignore_errors: false
 
     - name: Exibir saída do script
       debug:
-        var: resultado_script.stdout
+        var: resultado_execucao.stdout
+
+    - name: Publicar caminho do arquivo gerado
+      set_stats:
+        data:
+          caminho_do_arquivo: "{{ caminho_arquivo }}"
+          data_processada: "{{ caldate }}"

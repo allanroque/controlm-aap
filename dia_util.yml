@@ -1,0 +1,34 @@
+---
+- name: Validar se hoje é o 1º dia útil do mês
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    calendario_url: "http://192.168.100.11:8181/dias_uteis.csv"
+    calendario_local: "/tmp/dias_uteis.csv"
+    hoje: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+
+  tasks:
+    - name: Baixar calendário de dias úteis
+      get_url:
+        url: "{{ calendario_url }}"
+        dest: "{{ calendario_local }}"
+        mode: '0444'
+        force: true
+      register: resultado_download
+      failed_when: resultado_download.failed
+
+    - name: Verificar se hoje está na lista
+      shell: grep -Fxq {{ hoje }} {{ calendario_local }}
+      register: resultado_verificacao
+      ignore_errors: true
+
+    - name: Definir variável execucao_permitida
+      set_stats:
+        data:
+          execucao_permitida: "{{ resultado_verificacao.rc == 0 }}"
+
+    - name: Falhar se não for o 1º dia útil
+      fail:
+        msg: "Hoje ({{ hoje }}) não é o 1º dia útil do mês segundo calendário definido."
+      when: resultado_verificacao.rc != 0
