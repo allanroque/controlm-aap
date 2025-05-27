@@ -1,0 +1,41 @@
+---
+- name: Aplicar Schedule com RRULESET (Dias Úteis) em múltiplos Job Templates
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    lista_de_jobs: ""
+    hora_execucao: "09:00:00"  # horário fixo
+    timezone: "America/Sao_Paulo"
+
+    data_inicio: "{{ lookup('pipe', 'date +%Y-%m-%d') }}T{{ hora_execucao }}"
+
+    regras_dia_util:
+      - frequency: "day"
+        every: 1
+      - frequency: "day"
+        every: 1
+        on_days: ["saturday", "sunday"]
+        include: false
+
+  tasks:
+    - name: Gerar rruleset para dias úteis
+      set_fact:
+        rrule_final: >-
+          {{ query('awx.awx.schedule_rruleset',
+                   data_inicio,
+                   rules=regras_dia_util,
+                   timezone=timezone) }}
+
+    - name: Aplicar schedule para cada Job Template
+      loop: "{{ lista_de_jobs }}"
+      loop_control:
+        loop_var: job_template_nome
+      schedule:
+        name: "agendamento-diautil-{{ job_template_nome }}"
+        state: present
+        unified_job_template: "{{ job_template_nome }}"
+        rrule: "{{ rrule_final }}"
+        enabled: true
+        extra_data:
+          origem: schedule_dia_util
