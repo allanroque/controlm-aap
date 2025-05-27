@@ -6,34 +6,29 @@
   vars:
     src_host: "{{ host_origem }}"
     dest_host: "{{ host_destino }}"
-    caminho_csv: "{{ caminho_csv }}"
-    odate_utilizada: "{{ odate_utilizada | default('', true) }}"
+    caminho_do_arquivo: "{{ caminho_do_arquivo }}"
     caminho_destino: "{{ caminho_destino }}"
-    nome_arquivo_original: "{{ caminho_csv | basename }}"
-    nome_final: >-
-      {{ 'financeiro_' + odate_utilizada + '.csv' if odate_utilizada else nome_arquivo_original }}
-    arquivo_local: "/tmp/{{ nome_final }}"
 
   tasks:
-#    - name: Buscar arquivo do host de origem
-#      ansible.builtin.fetch:
-#        src: "{{ caminho_csv }}"
-#        dest: "{{ arquivo_local }}"
-#        flat: true
-#      delegate_to: "{{ src_host }}"
-#      run_once: true
+    - name: Buscar arquivo do host de origem
+      ansible.builtin.fetch:
+        src: "{{ caminho_csv }}"
+        dest: "{{ arquivo_local }}"
+        flat: true
+      delegate_to: "{{ src_host }}"
+      run_once: true
 
     - name: Copiar arquivo para o host de destino
       ansible.builtin.copy:
-        src: "{{ arquivo_local }}"
-        dest: "{{ caminho_destino }}/{{ nome_final }}"
+        src: "{{ caminho_do_arquivo }}"
+        dest: "{{ caminho_destino }}
       delegate_to: "{{ dest_host }}"
       run_once: true
 
     - name: Publicar variável com o destino final
       set_stats:
         data:
-          arquivo_enviado_para: "{{ dest_host }}:{{ caminho_destino }}/{{ nome_final }}"
+          arquivo_enviado_para: "{{ dest_host }}:{{ caminho_destino }}
 
     - name: Confirmar envio
       debug:

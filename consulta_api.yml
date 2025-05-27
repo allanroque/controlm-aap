@@ -42,6 +42,6 @@
     - name: Publicar variáveis para o fluxo
       set_stats:
         data:
-          caminho_csv: "/tmp/resultado_api_{{ ODATE }}.csv"
+          caminho_do_arquivo: "/tmp/resultado_api_{{ ODATE }}.csv"
           odate_utilizada: "{{ ODATE }}"
           data_processamento: "{{ CALCDATE }}"
