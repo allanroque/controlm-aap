@@ -31,7 +31,7 @@
       loop: "{{ lista_de_jobs }}"
       loop_control:
         loop_var: job_template_nome
-      schedule:
+      ansible.controller.schedule:
         name: "agendamento-diautil-{{ job_template_nome }}"
         state: present
         unified_job_template: "{{ job_template_nome }}"
