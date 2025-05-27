@@ -1,6 +1,6 @@
 ---
 - name: Executar script com CALCDATE como parâmetro
-  hosts: localhost
+  hosts: aap01.aroque.com.br
   gather_facts: false
 
   vars:
