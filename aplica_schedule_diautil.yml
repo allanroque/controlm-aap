@@ -5,7 +5,6 @@
 
   vars:
     lista_de_jobs:
-       - PKGS
     hora_execucao: "09:00:00"  # horário fixo
     timezone: "America/Sao_Paulo"
 
