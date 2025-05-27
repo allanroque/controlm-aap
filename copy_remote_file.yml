@@ -21,7 +21,7 @@
     - name: Copiar arquivo para o host de destino
       ansible.builtin.copy:
         src: "{{ caminho_do_arquivo }}"
-        dest: "{{ caminho_destino }}"A
+        dest: "{{ caminho_destino }}"
       delegate_to: "{{ dest_host }}"
       run_once: true
 
