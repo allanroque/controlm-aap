@@ -19,9 +19,12 @@
         include: false
 
   tasks:
-    - name: Definir RRULE para dias úteis
+    - name: Format DTSTART e RRULE válidos para dias úteis
       set_fact:
-        rrule_final: "DTSTART;TZID={{ timezone }}:{{ data_inicio }} RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR"
+        dtstart_formatado: "{{ lookup('pipe', 'date -u +%Y%m%dT090000Z') }}"
+        rrule_final: >-
+          DTSTART:{{ dtstart_formatado }}
+          RRULE:FREQ=DAILY;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR
 
     - name: Aplicar schedule para cada Job Template
       loop: "{{ lista_de_jobs }}"
@@ -31,7 +34,11 @@
         name: "agendamento-diautil-{{ job_template_nome }}"
         state: present
         unified_job_template: "{{ job_template_nome }}"
-        rrule: "{{ rrule_final }}"
+        rrule: "{{ rrule_final | regex_replace('\n', '') }}"
         enabled: true
         extra_data:
           origem: schedule_dia_util
+        controller_host: "https://192.168.100.11/"
+        controller_username: "admin"
+        controller_password: "redhat"
+        validate_certs: false
