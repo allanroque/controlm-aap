@@ -1,6 +1,6 @@
 ---
 - name: Validar se hoje é dia útil segundo calendário remoto (B3)
-  hosts: localhost
+  hosts: aap01.aroque.com.br
   gather_facts: false
 
   vars:

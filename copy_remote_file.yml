@@ -1,18 +1,38 @@
 ---
-- name: Copiar arquivo diretamente de um servidor remoto para outro
-  hosts: "{{ host_node }}"
+- name: Transferir arquivo para servidor remoto
+  hosts: localhost
   gather_facts: false
-  become: false
 
   vars:
-    src_host: ""        # Nome do host de origem (definido no inventário)
-    src_path: ""        # Caminho completo no host de origem
-    dest_path: ""       # Caminho completo no host de destino
+    caminho_csv: "{{ caminho_csv }}"
+    odate_utilizada: "{{ odate_utilizada }}"
+    servidor_destino: "{{ servidor_destino }}"
+    caminho_destino: "{{ caminho_destino }}"
+    nome_final: "financeiro_{{ odate_utilizada }}.csv"
 
   tasks:
-    - name: Copiar arquivo do host de origem diretamente para este host
+    - name: Verificar se o arquivo existe
+      stat:
+        path: "{{ caminho_csv }}"
+      register: arquivo_stat
+
+    - name: Falhar se o arquivo não existir
+      fail:
+        msg: "Arquivo {{ caminho_csv }} não encontrado."
+      when: not arquivo_stat.stat.exists
+
+    - name: Enviar arquivo para servidor remoto
       ansible.posix.synchronize:
-        src: "{{ src_path }}"
-        dest: "{{ dest_path }}"
-        mode: pull
-      delegate_to: "{{ src_host }}"
+        src: "{{ caminho_csv }}"
+        dest: "{{ caminho_destino }}/{{ nome_final }}"
+        mode: push
+      delegate_to: "{{ servidor_destino }}"
+
+    - name: Publicar destino do arquivo
+      set_stats:
+        data:
+          arquivo_enviado_para: "{{ servidor_destino }}:{{ caminho_destino }}/{{ nome_final }}"
+
+    - name: Confirmar envio
+      debug:
+        msg: "Arquivo transferido para {{ workflow.vars.arquivo_enviado_para }}"

@@ -1,0 +1,34 @@
+---
+- name: Gera arquivo CSV e envia para servidor remoto
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    caminho_csv: "{{ caminho_csv }}"
+    odate_utilizada: "{{ odate_utilizada }}"
+    servidor_destino: "{{ servidor_destino }}"
+    caminho_destino: "{{ caminho_destino }}"
+    arquivo_final: "/tmp/financeiro_{{ odate_utilizada }}.csv"
+
+  tasks:
+    - name: Copiar arquivo CSV com nome normalizado
+      copy:
+        src: "{{ caminho_csv }}"
+        dest: "{{ arquivo_final }}"
+        remote_src: false
+        mode: '0644'
+
+    - name: Enviar arquivo para servidor remoto
+      ansible.builtin.shell: |
+        scp {{ arquivo_final }} {{ servidor_destino }}:{{ caminho_destino }}
+      register: resultado_envio
+      ignore_errors: false
+
+    - name: Publicar caminho de destino do arquivo
+      set_stats:
+        data:
+          arquivo_enviado_para: "{{ servidor_destino }}:{{ caminho_destino }}/financeiro_{{ odate_utilizada }}.csv"
+
+    - name: Confirmar envio
+      debug:
+        msg: "Arquivo enviado com sucesso para {{ workflow.vars.arquivo_enviado_para }}"

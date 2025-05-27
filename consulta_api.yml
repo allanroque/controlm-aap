@@ -1,6 +1,6 @@
 ---
 - name: Simular consulta a API de dados financeiros com ODATE e CALCDATE
-  hosts: localhost
+  hosts: aap01.aroque.com.br
   gather_facts: false
 
   vars:
@@ -38,3 +38,10 @@
     - name: Mostrar resultado
       debug:
         var: conteudo_csv.stdout
+
+    - name: Publicar variáveis para o fluxo
+      set_stats:
+        data:
+          caminho_csv: "/tmp/resultado_api_{{ ODATE }}.csv"
+          odate_utilizada: "{{ ODATE }}"
+          data_processamento: "{{ CALCDATE }}"
