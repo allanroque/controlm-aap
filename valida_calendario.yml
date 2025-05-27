@@ -4,7 +4,7 @@
   gather_facts: false
 
   vars:
-    calendario_url: "http://192.168.100.11:8181/b3_2025.csv"
+    calendario_url: "http://192.168.100.11:8181/b3_2025.csv"  # pode ser sobrescrito via extra_vars
     calendario_local: "/tmp/b3_2025.csv"
 
   tasks:
@@ -19,7 +19,7 @@
         mode: '0444'
         force: true
       register: resultado_download
-      failed_when: resultado_download.status != 200
+      failed_when: resultado_download.status_code != 200
 
     - name: Verificar se a data atual está no calendário de feriados
       shell: grep -Fxq {{ data_hoje }} {{ calendario_local }}
