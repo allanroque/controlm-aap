@@ -19,13 +19,9 @@
         include: false
 
   tasks:
-    - name: Gerar rruleset para dias úteis
+    - name: Definir RRULE para dias úteis
       set_fact:
-        rrule_final: >-
-          {{ query('awx.awx.schedule_rruleset',
-                   data_inicio,
-                   rules=regras_dia_util,
-                   timezone=timezone) }}
+        rrule_final: "DTSTART;TZID={{ timezone }}:{{ data_inicio }} RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR"
 
     - name: Aplicar schedule para cada Job Template
       loop: "{{ lista_de_jobs }}"
