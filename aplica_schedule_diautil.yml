@@ -37,7 +37,3 @@
         enabled: true
         extra_data:
           origem: schedule_dia_util
-        controller_host: "https://192.168.100.11/"
-        controller_username: "admin"
-        controller_password: "redhat"
-        validate_certs: false
