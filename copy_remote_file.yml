@@ -21,14 +21,14 @@
     - name: Copiar arquivo para o host de destino
       ansible.builtin.copy:
         src: "{{ caminho_do_arquivo }}"
-        dest: "{{ caminho_destino }}
+        dest: "{{ caminho_destino }}"A
       delegate_to: "{{ dest_host }}"
       run_once: true
 
     - name: Publicar variável com o destino final
       set_stats:
         data:
-          arquivo_enviado_para: "{{ dest_host }}:{{ caminho_destino }}
+          arquivo_enviado_para: "{{ dest_host }}:{{ caminho_destino }}"
 
     - name: Confirmar envio
       debug:
