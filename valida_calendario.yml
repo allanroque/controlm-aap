@@ -4,8 +4,8 @@
   gather_facts: false
 
   vars:
-    calendario_url: "http://192.168.100.11:8181/b3_2025.csv"  # pode ser sobrescrito via extra_vars
-    calendario_local: "/tmp/b3_2025.csv"
+    calendario_url: "http://192.168.100.11:8181/b3_2025.csv"
+    calendario_local: "/home/ansible/b3_2025.csv"
 
   tasks:
     - name: Obter data atual
@@ -16,10 +16,8 @@
       get_url:
         url: "{{ calendario_url }}"
         dest: "{{ calendario_local }}"
-        mode: '0444'
+        mode: '0644'
         force: true
-      register: resultado_download
-      failed_when: resultado_download.failed
 
     - name: Verificar se a data atual está no calendário de feriados
       shell: grep -Fxq {{ data_hoje }} {{ calendario_local }}
@@ -30,11 +28,6 @@
       set_stats:
         data:
           execucao_permitida: "{{ resultado_calendario.rc != 0 }}"
-
-    - name: Exibir status da execução
-      debug:
-        msg: >-
-          Execução {{ 'permitida' if resultado_calendario.rc != 0 else 'bloqueada' }} para {{ data_hoje }}
 
     - name: Falhar se a data não for permitida
       fail:
