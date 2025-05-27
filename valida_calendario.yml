@@ -19,7 +19,7 @@
         mode: '0444'
         force: true
       register: resultado_download
-      failed_when: resultado_download.status_code != 200
+      failed_when: resultado_download.failed
 
     - name: Verificar se a data atual está no calendário de feriados
       shell: grep -Fxq {{ data_hoje }} {{ calendario_local }}
