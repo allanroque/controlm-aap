@@ -4,11 +4,11 @@
   gather_facts: false
 
   vars:
-    ODATE: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"  # pode ser sobrescrito via extra_vars
+    ODATE: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"  # Pode ser sobrescrito via survey ou workflow
     CALCDATE: "{{ lookup('pipe', 'date -d \"+1 day\" +%Y-%m-%d') }}"
     api_url: "http://192.168.100.11:8182/dados_financeiros.csv"
-    dados_originais: "/tmp/dados_financeiros.csv"
-    dados_filtrados: "/tmp/resultado_api_{{ ODATE }}.csv"
+    dados_originais: "/home/ansible/dados_financeiros.csv"
+    dados_filtrados: "/home/ansible/resultado_api_{{ ODATE }}.csv"
 
   tasks:
     - name: Exibir ODATE e CALCDATE
@@ -19,10 +19,10 @@
       get_url:
         url: "{{ api_url }}"
         dest: "{{ dados_originais }}"
-        mode: '0444'
+        mode: '0644'
         force: true
       register: resultado_download
-      failed_when: resultado_download.status_code != 200
+      failed_when: resultado_download.failed
 
     - name: Filtrar transações para a data ODATE
       shell: |
@@ -42,6 +42,6 @@
     - name: Publicar variáveis para o fluxo
       set_stats:
         data:
-          caminho_do_arquivo: "/tmp/resultado_api_{{ ODATE }}.csv"
+          caminho_do_arquivo: "{{ dados_filtrados }}"
           odate_utilizada: "{{ ODATE }}"
           data_processamento: "{{ CALCDATE }}"
