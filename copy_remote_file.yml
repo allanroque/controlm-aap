@@ -1,6 +1,6 @@
 ---
 - name: Transferir arquivo para servidor remoto
-  hosts: localhost
+  hosts: aap01.aroque.com.br
   gather_facts: false
 
   vars:
