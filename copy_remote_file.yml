@@ -5,10 +5,8 @@
 
   vars:
     caminho_csv: "{{ caminho_csv }}"
-    odate_utilizada: "{{ odate_utilizada }}"
     servidor_destino: "{{ servidor_destino }}"
     caminho_destino: "{{ caminho_destino }}"
-    nome_final: "financeiro_{{ odate_utilizada }}.csv"
 
   tasks:
     - name: Verificar se o arquivo existe
@@ -24,14 +22,14 @@
     - name: Enviar arquivo para servidor remoto
       ansible.posix.synchronize:
         src: "{{ caminho_csv }}"
-        dest: "{{ caminho_destino }}/{{ nome_final }}"
+        dest: "{{ caminho_destino }}/"
         mode: push
       delegate_to: "{{ servidor_destino }}"
 
     - name: Publicar destino do arquivo
       set_stats:
         data:
-          arquivo_enviado_para: "{{ servidor_destino }}:{{ caminho_destino }}/{{ nome_final }}"
+          arquivo_enviado_para: "{{ servidor_destino }}:{{ caminho_destino }}/"
 
     - name: Confirmar envio
       debug:
