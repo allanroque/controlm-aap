@@ -4,29 +4,28 @@
   gather_facts: false
 
   vars:
-    lista_de_jobs: ""
+    lista_de_jobs:
+       - PKGS
     hora_execucao: "09:00:00"  # horário fixo
     timezone: "America/Sao_Paulo"
 
-    data_inicio: "{{ lookup('pipe', 'date +%Y-%m-%d') }}T{{ hora_execucao }}"
-
-    regras_dia_util:
-      - frequency: "day"
-        every: 1
-      - frequency: "day"
-        every: 1
-        on_days: ["saturday", "sunday"]
-        include: false
 
   tasks:
-    - name: Format DTSTART e RRULE válidos para dias úteis
+    - name: Gerar DTSTART no formato UTC com hora 09:00
+      shell: date -u +%Y%m%dT090000Z
+      register: dtstart_cmd
+
+    - name: Definir dtstart_formatado
       set_fact:
-        dtstart_formatado: "{{ lookup('pipe', 'date -u +%Y%m%dT090000Z') }}"
+        dtstart_formatado: "{{ dtstart_cmd.stdout }}"
+
+    - name: Definir RRULE completa
+      set_fact:
         rrule_final: >-
           DTSTART:{{ dtstart_formatado }}
           RRULE:FREQ=DAILY;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR
 
-    - name: Aplicar schedule para cada Job Template
+    - name: Aplicar schedule em cada Job Template
       loop: "{{ lista_de_jobs }}"
       loop_control:
         loop_var: job_template_nome
@@ -38,3 +37,7 @@
         enabled: true
         extra_data:
           origem: schedule_dia_util
+        controller_host: "https://192.168.100.11/"
+        controller_username: "admin"
+        controller_password: "redhat"
+        validate_certs: false
