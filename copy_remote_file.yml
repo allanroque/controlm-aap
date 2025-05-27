@@ -1,35 +1,39 @@
 ---
-- name: Transferir arquivo para servidor remoto
-  hosts: aap01.aroque.com.br
+- name: Transferir arquivo entre servidores sem rsync, com fallback de nome
+  hosts: localhost
   gather_facts: false
 
   vars:
+    src_host: "{{ host_origem }}"
+    dest_host: "{{ host_destino }}"
     caminho_csv: "{{ caminho_csv }}"
-    servidor_destino: "{{ servidor_destino }}"
+    odate_utilizada: "{{ odate_utilizada | default('', true) }}"
     caminho_destino: "{{ caminho_destino }}"
+    nome_arquivo_original: "{{ caminho_csv | basename }}"
+    nome_final: >-
+      {{ 'financeiro_' + odate_utilizada + '.csv' if odate_utilizada else nome_arquivo_original }}
+    arquivo_local: "/tmp/{{ nome_final }}"
 
   tasks:
-    - name: Verificar se o arquivo existe
-      stat:
-        path: "{{ caminho_csv }}"
-      register: arquivo_stat
+#    - name: Buscar arquivo do host de origem
+#      ansible.builtin.fetch:
+#        src: "{{ caminho_csv }}"
+#        dest: "{{ arquivo_local }}"
+#        flat: true
+#      delegate_to: "{{ src_host }}"
+#      run_once: true
 
-    - name: Falhar se o arquivo não existir
-      fail:
-        msg: "Arquivo {{ caminho_csv }} não encontrado."
-      when: not arquivo_stat.stat.exists
+    - name: Copiar arquivo para o host de destino
+      ansible.builtin.copy:
+        src: "{{ arquivo_local }}"
+        dest: "{{ caminho_destino }}/{{ nome_final }}"
+      delegate_to: "{{ dest_host }}"
+      run_once: true
 
-    - name: Enviar arquivo para servidor remoto
-      ansible.posix.synchronize:
-        src: "{{ caminho_csv }}"
-        dest: "{{ caminho_destino }}/"
-        mode: push
-      delegate_to: "{{ servidor_destino }}"
-
-    - name: Publicar destino do arquivo
+    - name: Publicar variável com o destino final
       set_stats:
         data:
-          arquivo_enviado_para: "{{ servidor_destino }}:{{ caminho_destino }}/"
+          arquivo_enviado_para: "{{ dest_host }}:{{ caminho_destino }}/{{ nome_final }}"
 
     - name: Confirmar envio
       debug:
