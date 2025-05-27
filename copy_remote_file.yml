@@ -35,4 +35,4 @@
 
     - name: Confirmar envio
       debug:
-        msg: "Arquivo transferido para {{ workflow.vars.arquivo_enviado_para }}"
+        msg: "Arquivo transferido para {{ arquivo_enviado_para }}"
