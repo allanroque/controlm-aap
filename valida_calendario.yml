@@ -4,8 +4,8 @@
   gather_facts: false
 
   vars:
-    calendario_url: "192.168.100.11" 
-    calendario_local: "/opt/calendarios/b3_2025.csv"
+    calendario_url: "http://192.168.100.11:8181/b3_2025.csv"
+    calendario_local: "/tmp/b3_2025.csv"
 
   tasks:
     - name: Obter data atual
