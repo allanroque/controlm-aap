@@ -35,3 +35,13 @@
       debug:
         msg: >-
           Execução {{ 'permitida' if resultado_calendario.rc != 0 else 'bloqueada' }} para {{ data_hoje }}
+
+    - name: Falhar se a data não for permitida
+      fail:
+        msg: "Execução bloqueada para {{ data_hoje }} — data consta como feriado no calendário B3."
+      when: resultado_calendario.rc == 0
+
+    - name: Exibir status da execução
+      debug:
+        msg: "Execução permitida para {{ data_hoje }}"
+      when: resultado_calendario.rc != 0
