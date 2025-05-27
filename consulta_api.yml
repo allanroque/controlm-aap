@@ -1,0 +1,40 @@
+---
+- name: Simular consulta a API de dados financeiros com ODATE e CALCDATE
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    ODATE: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"  # pode ser sobrescrito via extra_vars
+    CALCDATE: "{{ lookup('pipe', 'date -d \"+1 day\" +%Y-%m-%d') }}"
+    api_url: "http://192.168.100.11:8182/opt/dados/dados_financeiros.csv"
+    dados_originais: "/tmp/dados_financeiros.csv"
+    dados_filtrados: "/tmp/resultado_api_{{ ODATE }}.csv"
+
+  tasks:
+    - name: Exibir ODATE e CALCDATE
+      debug:
+        msg: "ODATE: {{ ODATE }} | CALCDATE: {{ CALCDATE }}"
+
+    - name: Baixar CSV simulado da API
+      get_url:
+        url: "{{ api_url }}"
+        dest: "{{ dados_originais }}"
+        mode: '0444'
+        force: true
+      register: resultado_download
+      failed_when: resultado_download.status_code != 200
+
+    - name: Filtrar transações para a data ODATE
+      shell: |
+        head -n1 {{ dados_originais }} > {{ dados_filtrados }}
+        grep {{ ODATE }} {{ dados_originais }} >> {{ dados_filtrados }}
+      args:
+        executable: /bin/bash
+
+    - name: Exibir conteúdo do CSV filtrado
+      shell: cat {{ dados_filtrados }}
+      register: conteudo_csv
+
+    - name: Mostrar resultado
+      debug:
+        var: conteudo_csv.stdout
