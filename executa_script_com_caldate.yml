@@ -1,0 +1,40 @@
+---
+- name: Executar script com CALCDATE como parâmetro
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    script_path: "{{ script_path }}"
+    odate: "{{ odate | default(lookup('pipe', 'date +%Y-%m-%d')) }}"
+    caldate: "{{ lookup('pipe', 'date -d \"{{ odate }} +1 day\" +%Y-%m-%d') }}"
+
+  tasks:
+    - name: Exibir ODATE e CALCDATE
+      debug:
+        msg: "ODATE: {{ odate }} | CALCDATE: {{ caldate }}"
+
+    - name: Verificar se o script existe
+      stat:
+        path: "{{ script_path }}"
+      register: script_status
+
+    - name: Falhar se o script não existir
+      fail:
+        msg: "Script {{ script_path }} não encontrado"
+      when: not script_status.stat.exists
+
+    - name: Executar script com CALCDATE
+      shell: "{{ script_path }} {{ caldate }}"
+      register: resultado_execucao
+      ignore_errors: false
+
+    - name: Exibir resultado do script
+      debug:
+        var: resultado_execucao.stdout
+
+    - name: Publicar dados para o workflow
+      set_stats:
+        data:
+          odate_utilizada: "{{ odate }}"
+          data_calculada: "{{ caldate }}"
+          status_execucao: "{{ resultado_execucao.rc }}"
