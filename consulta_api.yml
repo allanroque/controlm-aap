@@ -6,7 +6,7 @@
   vars:
     ODATE: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"  # pode ser sobrescrito via extra_vars
     CALCDATE: "{{ lookup('pipe', 'date -d \"+1 day\" +%Y-%m-%d') }}"
-    api_url: "http://192.168.100.11:8182/opt/dados/dados_financeiros.csv"
+    api_url: "http://192.168.100.11:8182/dados_financeiros.csv"
     dados_originais: "/tmp/dados_financeiros.csv"
     dados_filtrados: "/tmp/resultado_api_{{ ODATE }}.csv"
 
